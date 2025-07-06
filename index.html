@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>儿童暑假任务管理系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #5b8cff;
+            --primary-light: #8aafff;
+            --secondary: #36d1dc;
+            --accent: #ff6b6b;
+            --accent-light: #ff8e8e;
+            --light: #ffd166;
+            --bright: #7ee8fa;
+            --background: #f8f9ff;
+            --card-bg: #ffffff;
+            --text: #2d3748;
+            --text-light: #718096;
+            --success: #48bb78;
+            --warning: #ed8936;
+            --border: #e2e8f0;
+            --shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #f0f4ff, #e6f7ff);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        /* 顶部导航栏 */
+        .navbar {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(91, 140, 255, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            font-size: 28px;
+            animation: bounce 2s infinite;
+        }
+
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .date-time {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .current-date {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .current-time {
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 12px;
+            padding: 10px 20px;
+            color: white;
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        /* 欢迎区域 */
+        .welcome-section {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 20px;
+            animation: fadeIn 1s;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            color: var(--text-light);
+            max-width: 700px;
+            margin: 0 auto 25px;
+            font-weight: 500;
+        }
+
+        /* 仪表盘 */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(91, 140, 255, 0.1);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 28px;
+            color: var(--primary);
+        }
+
+        .stat-card h3 {
+            color: var(--text-light);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: var(--text-light);
+        }
+
+        /* 任务区域 */
+        .tasks-section {
+            margin-bottom: 50px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--border);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tasks-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+        }
+
+        .task-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+            transition: all 0.4s ease;
+            position: relative;
+            border: 1px solid var(--border);
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .task-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 18px 40px rgba(0,0,0,0.12);
+        }
+
+        .task-header {
+            padding: 25px 25px 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .task-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .task-content {
+            padding: 25px;
+        }
+
+        .task-type {
+            display: inline-block;
+            background: rgba(91, 140, 255, 0.1);
+            color: var(--primary);
+            padding: 6px 15px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .task-progress {
+            margin-bottom: 25px;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .progress-bar-container {
+            height: 12px;
+            background: #edf2f7;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 6px;
+            transition: width 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
+            position: relative;
+        }
+
+        .task-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        }
+
+        .btn-complete {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-complete:hover {
+            background: #3da766;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(72, 187, 120, 0.3);
+        }
+
+        .btn-reset {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background: #e55a58;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        /* 添加任务区域 */
+        .add-task {
+            background: var(--card-bg);
+            border-radius: 25px;
+            padding: 35px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+            border: 1px solid var(--border);
+            margin-bottom: 40px;
+        }
+
+        .add-task h2 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        .add-task h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: var(--text);
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid var(--border);
+            border-radius: 15px;
+            font-family: inherit;
+            font-size: 1.05rem;
+            transition: all 0.3s;
+            background: #f8f9ff;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(91, 140, 255, 0.2);
+            background: white;
+        }
+
+        .form-control::placeholder {
+            color: #a0aec0;
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            width: 100%;
+            padding: 18px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 15px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            box-shadow: 0 6px 15px rgba(91, 140, 255, 0.4);
+        }
+
+        .btn-add:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(91, 140, 255, 0.5);
+        }
+
+        .btn-add:active {
+            transform: translateY(0);
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 0 20px;
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        /* 清空数据确认模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+            text-align: center;
+            animation: popIn 0.4s;
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+
+        .modal-text {
+            font-size: 1.1rem;
+            color: var(--text);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-confirm {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-confirm:hover {
+            background: #e55a58;
+            transform: translateY(-2px);
+        }
+
+        .btn-cancel {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #4a7dff;
+            transform: translateY(-2px);
+        }
+
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-15px);}
+            60% {transform: translateY(-7px);}
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes confetti {
+            0% { transform: translateY(0) rotate(0); opacity: 1; }
+            100% { transform: translateY(100px) rotate(720deg); opacity: 0; }
+        }
+
+        .pulse {
+            animation: pulse 0.6s;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: var(--accent);
+            animation: confetti 1s ease-out forwards;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+            }
+            
+            .tasks-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .task-actions {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <nav class="navbar">
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="fas fa-sun"></i>
+            </div>
+            <div class="logo-text">暑假任务</div>
+        </div>
+        
+        <div class="date-time">
+            <div class="current-date" id="current-date">2023年7月15日 星期六</div>
+            <div class="current-time" id="current-time">00:00:00</div>
+        </div>
+        
+        <div class="nav-buttons">
+            <button class="nav-btn" onclick="openClearModal()">
+                <i class="fas fa-trash-alt"></i> 清空数据
+            </button>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <!-- 欢迎区域 -->
+        <section class="welcome-section">
+            <h1>儿童暑假任务管理系统</h1>
+            <p class="subtitle">记录假期任务，培养良好习惯，让暑假更有意义！</p>
+        </section>
+        
+        <!-- 仪表盘 -->
+        <div class="dashboard">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <h3>总任务数量</h3>
+                <div class="stat-value" id="total-tasks">5</div>
+                <div class="stat-label">当前任务总数</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3>已完成次数</h3>
+                <div class="stat-value" id="completed-tasks">18</div>
+                <div class="stat-label">任务完成总次数</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>平均完成率</h3>
+                <div class="stat-value" id="completion-rate">45%</div>
+                <div class="stat-label">所有任务平均进度</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar-day"></i>
+                </div>
+                <h3>暑假剩余天数</h3>
+                <div class="stat-value" id="days-left">36</div>
+                <div class="stat-label">好好利用每一天</div>
+            </div>
+        </div>
+        
+        <!-- 任务区域 -->
+        <section class="tasks-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-clipboard-list"></i> 我的任务列表
+                </h2>
+            </div>
+            
+            <div class="tasks-container" id="tasks-container">
+                <!-- 任务卡片将通过JavaScript动态生成 -->
+            </div>
+        </section>
+        
+        <!-- 添加任务区域 -->
+        <div class="add-task">
+            <h2><i class="fas fa-plus-circle"></i> 添加新任务</h2>
+            <form id="task-form">
+                <div class="form-group">
+                    <label for="task-name"><i class="fas fa-pencil-alt"></i> 任务名称</label>
+                    <input type="text" id="task-name" class="form-control" placeholder="例如：阅读、练字、游泳..." required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="task-category"><i class="fas fa-tag"></i> 任务类型</label>
+                    <input type="text" id="task-category" class="form-control" placeholder="例如：学习、运动、艺术..." required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="task-total"><i class="fas fa-bullseye"></i> 任务总量</label>
+                    <input type="number" id="task-total" class="form-control" min="1" value="10" required>
+                </div>
+                
+                <button type="submit" class="btn btn-add">
+                    <i class="fas fa-plus"></i> 添加新任务
+                </button>
+            </form>
+        </div>
+        
+        <footer>
+            <p>儿童暑假任务管理系统 &copy; 2023 | 培养自律习惯，成就美好未来</p>
+        </footer>
+    </div>
+    
+    <!-- 清空数据确认模态框 -->
+    <div class="modal" id="clear-modal">
+        <div class="modal-content">
+            <h2 class="modal-title"><i class="fas fa-exclamation-triangle"></i> 确认清空数据</h2>
+            <p class="modal-text">您确定要清空所有任务数据吗？此操作不可恢复，所有任务记录将被永久删除。</p>
+            <div class="modal-buttons">
+                <button class="modal-btn btn-confirm" onclick="clearAllData()">确认清空</button>
+                <button class="modal-btn btn-cancel" onclick="closeClearModal()">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 任务数据
+        let tasks = JSON.parse(localStorage.getItem('summerTasks')) || [
+            // { id: 1, name: "每日阅读", category: "学习", total: 40, completed: 15 },
+            // { id: 2, name: "练字任务", category: "书法", total: 30, completed: 8 },
+            // { id: 3, name: "数学练习", category: "学习", total: 35, completed: 12 },
+            // { id: 4, name: "户外运动", category: "体育", total: 50, completed: 20 },
+            // { id: 5, name: "绘画创作", category: "艺术", total: 20, completed: 5 }
+        ];
+        
+        // 类别图标映射
+        const categoryIcons = {
+            "学习": "fas fa-book",
+            "书法": "fas fa-pen-nib",
+            "体育": "fas fa-running",
+            "艺术": "fas fa-palette",
+            "音乐": "fas fa-music",
+            "科学": "fas fa-flask",
+            "家务": "fas fa-broom",
+            "编程": "fas fa-laptop-code"
+        };
+
+        // DOM 加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            
+            renderTasks();
+            updateDashboard();
+            
+            // 添加任务表单提交
+            document.getElementById('task-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                addNewTask();
+            });
+            
+            // 设置剩余天数（示例：假设暑假从7月1日到8月31日）
+            const today = new Date();
+            const endOfSummer = new Date(today.getFullYear(), 7, 31); // 8月31日
+            const daysLeft = Math.ceil((endOfSummer - today) / (1000 * 60 * 60 * 24));
+            document.getElementById('days-left').textContent = daysLeft > 0 ? daysLeft : 0;
+        });
+
+        // 更新日期时间
+        function updateDateTime() {
+            const now = new Date();
+            
+            // 格式化日期
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1;
+            const date = now.getDate();
+            const dayNames = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+            const day = dayNames[now.getDay()];
+            
+            document.getElementById('current-date').textContent = 
+                `${year}年${month}月${date}日 ${day}`;
+            
+            // 格式化时间
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            
+            document.getElementById('current-time').textContent = 
+                `${hours}:${minutes}:${seconds}`;
+        }
+        
+        // 打开清空数据确认框
+        function openClearModal() {
+            document.getElementById('clear-modal').style.display = 'flex';
+        }
+        
+        // 关闭清空数据确认框
+        function closeClearModal() {
+            document.getElementById('clear-modal').style.display = 'none';
+        }
+        
+        // 清空所有数据
+        function clearAllData() {
+            localStorage.removeItem('summerTasks');
+            tasks = [];
+            saveTasks();
+            renderTasks();
+            updateDashboard();
+            closeClearModal();
+            
+            // 显示清空成功提示
+            alert('所有任务数据已成功清空！');
+        }
+
+        // 渲染任务卡片
+        function renderTasks() {
+            const container = document.getElementById('tasks-container');
+            container.innerHTML = '';
+            
+            if (tasks.length === 0) {
+                container.innerHTML = `
+                    <div class="no-tasks" style="grid-column:1/-1;text-align:center;padding:50px 20px;">
+                        <i class="fas fa-tasks fa-4x" style="color:#cbd5e0;margin-bottom:20px;"></i>
+                        <h3 style="font-size:1.8rem;color:#4a5568;margin-bottom:15px;">暂无任务</h3>
+                        <p style="font-size:1.2rem;color:#718096;">添加一些任务来开始记录吧！</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            tasks.forEach(task => {
+                const progress = Math.round((task.completed / task.total) * 100);
+                const icon = categoryIcons[task.category] || "fas fa-star";
+                
+                const taskCard = document.createElement('div');
+                taskCard.className = 'task-card';
+                taskCard.innerHTML = `
+                    <div class="task-header">
+                        <div class="task-icon">
+                            <i class="${icon}"></i>
+                        </div>
+                        <h2 class="task-title">${task.name}</h2>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-type">${task.category}</div>
+                        
+                        <div class="task-progress">
+                            <div class="progress-info">
+                                <span>任务进度</span>
+                                <span>${progress}%</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: ${progress}%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="task-stats">
+                            <div class="stat-item">
+                                <div class="stat-number">${task.completed}</div>
+                                <div class="stat-label">已完成</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">${task.total}</div>
+                                <div class="stat-label">总量</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">${task.total - task.completed}</div>
+                                <div class="stat-label">剩余</div>
+                            </div>
+                        </div>
+                        
+                        <div class="task-actions">
+                            <button class="btn btn-complete" onclick="completeTask(${task.id})">
+                                <i class="fas fa-check-circle"></i> 完成一次
+                            </button>
+                            <button class="btn btn-reset" onclick="resetTask(${task.id})">
+                                <i class="fas fa-redo"></i> 重置
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(taskCard);
+            });
+        }
+
+        // 更新仪表盘数据
+        function updateDashboard() {
+            document.getElementById('total-tasks').textContent = tasks.length;
+            
+            const totalCompleted = tasks.reduce((sum, task) => sum + task.completed, 0);
+            document.getElementById('completed-tasks').textContent = totalCompleted;
+            
+            const totalCompletion = tasks.reduce((sum, task) => sum + (task.completed / task.total), 0);
+            const avgCompletion = Math.round((totalCompletion / tasks.length) * 100);
+            document.getElementById('completion-rate').textContent = isNaN(avgCompletion) ? '0%' : `${avgCompletion}%`;
+        }
+
+        // 完成任务（完成一次）
+        function completeTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task && task.completed < task.total) {
+                task.completed++;
+                saveTasks();
+                renderTasks();
+                updateDashboard();
+                
+                // 添加动画效果
+                const taskCard = document.querySelector(`.task-card:nth-child(${tasks.findIndex(t => t.id === taskId) + 1}`);
+                if (taskCard) {
+                    taskCard.classList.add('pulse');
+                    setTimeout(() => taskCard.classList.remove('pulse'), 600);
+                    
+                    // 添加庆祝效果
+                    if (task.completed === task.total) {
+                        for (let i = 0; i < 30; i++) {
+                            createConfetti(taskCard);
+                        }
+                    }
+                }
+            }
+        }
+
+        // 创建五彩纸屑效果
+        function createConfetti(container) {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = `${Math.random() * 100}%`;
+            confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 60%)`;
+            container.appendChild(confetti);
+            
+            setTimeout(() => {
+                confetti.remove();
+            }, 1000);
+        }
+
+        // 重置任务
+        function resetTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task && confirm(`确定要重置"${task.name}"任务吗？所有进度将被清除！`)) {
+                task.completed = 0;
+                saveTasks();
+                renderTasks();
+                updateDashboard();
+            }
+        }
+
+        // 添加新任务
+        function addNewTask() {
+            const nameInput = document.getElementById('task-name');
+            const categoryInput = document.getElementById('task-category');
+            const totalInput = document.getElementById('task-total');
+            
+            const newTask = {
+                id: Date.now(),
+                name: nameInput.value.trim(),
+                category: categoryInput.value.trim(),
+                total: parseInt(totalInput.value),
+                completed: 0
+            };
+            
+            tasks.push(newTask);
+            saveTasks();
+            renderTasks();
+            updateDashboard();
+            
+            // 重置表单
+            nameInput.value = '';
+            categoryInput.value = '';
+            totalInput.value = '10';
+            nameInput.focus();
+            
+            // 滚动到新添加的任务
+            setTimeout(() => {
+                const lastTask = document.querySelector('.task-card:last-child');
+                if (lastTask) {
+                    lastTask.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    lastTask.classList.add('pulse');
+                    setTimeout(() => lastTask.classList.remove('pulse'), 1000);
+                }
+            }, 100);
+        }
+
+        // 保存任务到本地存储
+        function saveTasks() {
+            localStorage.setItem('summerTasks', JSON.stringify(tasks));
+        }
+    </script>
+</body>
+</html>
