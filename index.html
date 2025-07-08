@@ -358,10 +358,12 @@
         .task-actions {
             display: flex;
             gap: 15px;
+            flex-wrap: wrap;
         }
 
         .btn {
             flex: 1;
+            min-width: 100px;
             padding: 15px;
             border: none;
             border-radius: 12px;
@@ -398,6 +400,28 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 15px rgba(255, 107, 107, 0.3);
         }
+        
+        .btn-edit {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #4a7dff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(91, 140, 255, 0.3);
+        }
+        
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(231, 76, 60, 0.3);
+        }
 
         /* 添加任务区域 */
         .add-task {
@@ -407,6 +431,7 @@
             box-shadow: 0 15px 40px rgba(0,0,0,0.08);
             border: 1px solid var(--border);
             margin-bottom: 40px;
+            position: relative;
         }
 
         .add-task h2 {
@@ -490,6 +515,19 @@
         .btn-add:active {
             transform: translateY(0);
         }
+        
+        .edit-mode-indicator {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--warning);
+            color: white;
+            padding: 6px 15px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: none;
+        }
 
         footer {
             text-align: center;
@@ -498,7 +536,7 @@
             font-size: 0.95rem;
         }
 
-        /* 清空数据确认模态框 */
+        /* 模态框 */
         .modal {
             display: none;
             position: fixed;
@@ -571,6 +609,58 @@
         .btn-cancel:hover {
             background: #4a7dff;
             transform: translateY(-2px);
+        }
+        
+        /* 编辑任务模态框 */
+        .edit-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .edit-modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+            animation: popIn 0.4s;
+        }
+        
+        .edit-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .edit-modal-title {
+            font-size: 1.8rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .close-edit {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .close-edit:hover {
+            color: var(--accent);
         }
 
         /* 动画效果 */
@@ -741,8 +831,12 @@
         
         <!-- 添加任务区域 -->
         <div class="add-task">
+            <div class="edit-mode-indicator" id="edit-mode-indicator">
+                <i class="fas fa-edit"></i> 编辑模式
+            </div>
             <h2><i class="fas fa-plus-circle"></i> 添加新任务</h2>
             <form id="task-form">
+                <input type="hidden" id="edit-task-id">
                 <div class="form-group">
                     <label for="task-name"><i class="fas fa-pencil-alt"></i> 任务名称</label>
                     <input type="text" id="task-name" class="form-control" placeholder="例如：阅读、练字、游泳..." required>
@@ -758,14 +852,17 @@
                     <input type="number" id="task-total" class="form-control" min="1" value="10" required>
                 </div>
                 
-                <button type="submit" class="btn btn-add">
+                <button type="submit" class="btn btn-add" id="submit-btn">
                     <i class="fas fa-plus"></i> 添加新任务
+                </button>
+                <button type="button" class="btn btn-add" style="background: var(--warning); display: none;" id="cancel-edit-btn" onclick="cancelEdit()">
+                    <i class="fas fa-times"></i> 取消编辑
                 </button>
             </form>
         </div>
         
         <footer>
-            <p>儿童暑假任务管理系统 &copy; 2023 | 培养自律习惯，成就美好未来</p>
+            <p>儿童暑假任务管理系统 &copy; 2025 | 培养自律习惯，成就美好未来</p>
         </footer>
     </div>
     
@@ -780,6 +877,56 @@
             </div>
         </div>
     </div>
+    
+    <!-- 删除任务确认模态框 -->
+    <div class="modal" id="delete-modal">
+        <div class="modal-content">
+            <h2 class="modal-title"><i class="fas fa-trash-alt"></i> 确认删除任务</h2>
+            <p class="modal-text" id="delete-task-text">您确定要删除此任务吗？此操作不可恢复。</p>
+            <div class="modal-buttons">
+                <button class="modal-btn btn-confirm" id="confirm-delete-btn">确认删除</button>
+                <button class="modal-btn btn-cancel" onclick="closeDeleteModal()">取消</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 编辑任务模态框 -->
+    <div class="edit-modal" id="edit-modal">
+        <div class="edit-modal-content">
+            <div class="edit-modal-header">
+                <h2 class="edit-modal-title"><i class="fas fa-edit"></i> 编辑任务</h2>
+                <button class="close-edit" onclick="closeEditModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="edit-task-form">
+                <input type="hidden" id="edit-modal-task-id">
+                <div class="form-group">
+                    <label for="edit-task-name"><i class="fas fa-pencil-alt"></i> 任务名称</label>
+                    <input type="text" id="edit-task-name" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-task-category"><i class="fas fa-tag"></i> 任务类型</label>
+                    <input type="text" id="edit-task-category" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-task-total"><i class="fas fa-bullseye"></i> 任务总量</label>
+                    <input type="number" id="edit-task-total" class="form-control" min="1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-task-completed"><i class="fas fa-check-circle"></i> 已完成次数</label>
+                    <input type="number" id="edit-task-completed" class="form-control" min="0" required>
+                </div>
+                
+                <button type="submit" class="btn btn-add">
+                    <i class="fas fa-save"></i> 保存修改
+                </button>
+            </form>
+        </div>
+    </div>
 
     <script>
         // 任务数据
@@ -790,6 +937,9 @@
             // { id: 4, name: "户外运动", category: "体育", total: 50, completed: 20 },
             // { id: 5, name: "绘画创作", category: "艺术", total: 20, completed: 5 }
         ];
+        
+        // 当前正在编辑的任务ID
+        let editingTaskId = null;
         
         // 类别图标映射
         const categoryIcons = {
@@ -814,7 +964,25 @@
             // 添加任务表单提交
             document.getElementById('task-form').addEventListener('submit', function(e) {
                 e.preventDefault();
-                addNewTask();
+                
+                if (editingTaskId) {
+                    updateTask();
+                } else {
+                    addNewTask();
+                }
+            });
+            
+            // 编辑任务表单提交
+            document.getElementById('edit-task-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                updateTaskViaModal();
+            });
+            
+            // 删除任务确认按钮
+            document.getElementById('confirm-delete-btn').addEventListener('click', function() {
+                const taskId = parseInt(this.dataset.taskId);
+                deleteTask(taskId);
+                closeDeleteModal();
             });
             
             // 设置剩余天数（示例：假设暑假从7月1日到8月31日）
@@ -855,6 +1023,37 @@
         // 关闭清空数据确认框
         function closeClearModal() {
             document.getElementById('clear-modal').style.display = 'none';
+        }
+        
+        // 打开删除任务确认框
+        function openDeleteModal(taskId, taskName) {
+            document.getElementById('delete-task-text').textContent = 
+                `您确定要删除"${taskName}"任务吗？此操作不可恢复。`;
+            document.getElementById('confirm-delete-btn').dataset.taskId = taskId;
+            document.getElementById('delete-modal').style.display = 'flex';
+        }
+        
+        // 关闭删除任务确认框
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').style.display = 'none';
+        }
+        
+        // 打开编辑任务模态框
+        function openEditModal(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                document.getElementById('edit-modal-task-id').value = task.id;
+                document.getElementById('edit-task-name').value = task.name;
+                document.getElementById('edit-task-category').value = task.category;
+                document.getElementById('edit-task-total').value = task.total;
+                document.getElementById('edit-task-completed').value = task.completed;
+                document.getElementById('edit-modal').style.display = 'flex';
+            }
+        }
+        
+        // 关闭编辑任务模态框
+        function closeEditModal() {
+            document.getElementById('edit-modal').style.display = 'none';
         }
         
         // 清空所有数据
@@ -934,6 +1133,12 @@
                             <button class="btn btn-reset" onclick="resetTask(${task.id})">
                                 <i class="fas fa-redo"></i> 重置
                             </button>
+                            <button class="btn btn-edit" onclick="openEditModal(${task.id})">
+                                <i class="fas fa-edit"></i> 修改
+                            </button>
+                            <button class="btn btn-delete" onclick="openDeleteModal(${task.id}, '${task.name}')">
+                                <i class="fas fa-trash-alt"></i> 删除
+                            </button>
                         </div>
                     </div>
                 `;
@@ -949,9 +1154,12 @@
             const totalCompleted = tasks.reduce((sum, task) => sum + task.completed, 0);
             document.getElementById('completed-tasks').textContent = totalCompleted;
             
-            const totalCompletion = tasks.reduce((sum, task) => sum + (task.completed / task.total), 0);
-            const avgCompletion = Math.round((totalCompletion / tasks.length) * 100);
-            document.getElementById('completion-rate').textContent = isNaN(avgCompletion) ? '0%' : `${avgCompletion}%`;
+            let avgCompletion = 0;
+            if (tasks.length > 0) {
+                const totalCompletion = tasks.reduce((sum, task) => sum + (task.completed / task.total), 0);
+                avgCompletion = Math.round((totalCompletion / tasks.length) * 100);
+            }
+            document.getElementById('completion-rate').textContent = `${avgCompletion}%`;
         }
 
         // 完成任务（完成一次）
@@ -964,7 +1172,8 @@
                 updateDashboard();
                 
                 // 添加动画效果
-                const taskCard = document.querySelector(`.task-card:nth-child(${tasks.findIndex(t => t.id === taskId) + 1}`);
+                const taskIndex = tasks.findIndex(t => t.id === taskId);
+                const taskCard = document.querySelector(`.task-card:nth-child(${taskIndex + 1}`);
                 if (taskCard) {
                     taskCard.classList.add('pulse');
                     setTimeout(() => taskCard.classList.remove('pulse'), 600);
@@ -1000,6 +1209,103 @@
                 saveTasks();
                 renderTasks();
                 updateDashboard();
+            }
+        }
+        
+        // 删除任务
+        function deleteTask(taskId) {
+            tasks = tasks.filter(t => t.id !== taskId);
+            saveTasks();
+            renderTasks();
+            updateDashboard();
+            
+            // 如果删除的是正在编辑的任务，则取消编辑状态
+            if (editingTaskId === taskId) {
+                cancelEdit();
+            }
+        }
+        
+        // 编辑任务（通过主表单）
+        function editTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                // 填充表单
+                document.getElementById('edit-task-id').value = task.id;
+                document.getElementById('task-name').value = task.name;
+                document.getElementById('task-category').value = task.category;
+                document.getElementById('task-total').value = task.total;
+                
+                // 更新按钮状态
+                document.getElementById('submit-btn').innerHTML = '<i class="fas fa-save"></i> 更新任务';
+                document.getElementById('edit-mode-indicator').style.display = 'block';
+                document.getElementById('cancel-edit-btn').style.display = 'block';
+                
+                // 设置编辑状态
+                editingTaskId = taskId;
+                
+                // 滚动到表单
+                document.querySelector('.add-task').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+        
+        // 取消编辑
+        function cancelEdit() {
+            // 重置表单
+            document.getElementById('task-form').reset();
+            document.getElementById('edit-task-id').value = '';
+            
+            // 更新按钮状态
+            document.getElementById('submit-btn').innerHTML = '<i class="fas fa-plus"></i> 添加新任务';
+            document.getElementById('edit-mode-indicator').style.display = 'none';
+            document.getElementById('cancel-edit-btn').style.display = 'none';
+            
+            // 清除编辑状态
+            editingTaskId = null;
+        }
+        
+        // 更新任务（通过主表单）
+        function updateTask() {
+            const taskId = parseInt(document.getElementById('edit-task-id').value);
+            const task = tasks.find(t => t.id === taskId);
+            
+            if (task) {
+                task.name = document.getElementById('task-name').value.trim();
+                task.category = document.getElementById('task-category').value.trim();
+                task.total = parseInt(document.getElementById('task-total').value);
+                
+                saveTasks();
+                renderTasks();
+                updateDashboard();
+                cancelEdit();
+                
+                // 显示更新成功提示
+                alert(`"${task.name}"任务已成功更新！`);
+            }
+        }
+        
+        // 更新任务（通过模态框）
+        function updateTaskViaModal() {
+            const taskId = parseInt(document.getElementById('edit-modal-task-id').value);
+            const task = tasks.find(t => t.id === taskId);
+            
+            if (task) {
+                task.name = document.getElementById('edit-task-name').value.trim();
+                task.category = document.getElementById('edit-task-category').value.trim();
+                task.total = parseInt(document.getElementById('edit-task-total').value);
+                task.completed = parseInt(document.getElementById('edit-task-completed').value);
+                
+                // 确保完成次数不超过总量
+                if (task.completed > task.total) {
+                    task.completed = task.total;
+                }
+                
+                saveTasks();
+                renderTasks();
+                updateDashboard();
+                closeEditModal();
+                
+                // 显示更新成功提示
+                alert(`"${task.name}"任务已成功更新！`);
             }
         }
 
